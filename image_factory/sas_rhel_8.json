@@ -1,0 +1,47 @@
+{
+    "builders": [
+        {
+            "type": "googlecompute", 
+            "project_id": "crp-dev-cloudsrv-test",
+            "zone": "us-east4-a",
+            "source_image_family": "rhel-8",
+            "disk_size": "60",
+            "ssh_username": "packer",
+            "machine_type": "n1-standard-1",
+            "instance_name": "std-packer",
+            "image_name": "golden-sas-rhel-8-{{timestamp}}",
+            "image_family": "golden-sas-rhel-8",
+            "network": "crp-dev-cloudsrv-test-vpc",
+            "subnetwork": "crp-dev-cloudsrv-test-sub-1",
+            "tags":["ssh"]
+            
+        }
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm",
+                "sudo yum -y install ansible"
+            ]
+        }, 
+
+        {
+            "type": "ansible-local",
+            "playbook_file": "playbooks/startup_sas.yaml",
+            "role_paths": [
+                "playbooks/roles/hardening",
+                "playbooks/roles/setup_so",
+                "playbooks/roles/sas"
+            ]
+        }, 
+
+        {
+            "type": "shell",
+            "inline": [
+                "sudo yum -y remove ansible epel-release"
+            ]
+        }
+    ]
+}

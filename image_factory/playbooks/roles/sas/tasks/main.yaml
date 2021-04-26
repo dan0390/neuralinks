@@ -1,0 +1,46 @@
+- name: Copying extra packages
+  copy: 
+    src: '{{ item }}'
+    dest: /tmp/{{ item }}
+  with_items: '{{ extras }}'
+
+- name: Installing additional packages
+  shell: yum install -y /tmp/compat-*
+  register: extra_packages
+  args:   
+    warn: false
+  
+
+- name: Install packages
+  yum: 
+    name: 
+      - gcc
+      - firefox
+      - libuuid
+      - libSM
+      - libXrender
+      - fontconfig
+      - libstdc++
+      - zlib
+      - apr
+      - ksh
+      - sssd
+      - sssd-client 
+
+- name: Creating NFS Directories
+  file: 
+    path: '{{ item }}'
+    state: directory
+  with_items: '{{ directories_nfs }}'
+
+- name: Creating Local Directories
+  file: 
+    path: '{{ item }}'
+    state: directory
+  with_items: '{{ directories_local }}'
+
+- name: Adding directories to FSTAB 
+  shell: |
+    echo "#NFS:{{ item }}      {{ item }}                 nfs     defaults,_netdev 0 0" >> /etc/fstab
+  with_items: '{{ directories_nfs }}'
+  register: fstab_entries

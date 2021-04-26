@@ -1,0 +1,146 @@
+### Copying files
+
+- name: Copying Script Files
+  copy: 
+    src: hardening_rhel_8.sh
+    dest: /tmp/hardening_rhel_8.sh
+    mode: 775 
+  when:
+    - ansible_distribution_major_version == "8"
+
+- name: Copying banner file
+  copy: 
+    src: sshd-banner
+    dest: /etc/ssh/sshd-banner
+    mode: 0666
+
+- name: Applying Hardening
+  shell: bash /tmp/hardening_rhel_8.sh
+  register: hardening
+  when:
+    - ansible_distribution_major_version == "8"
+
+- name: Ensure use of privileged commands is collected
+  shell: |
+    find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }' >> /etc/audit/audit.rules
+  register: privileged_use
+  args:   
+    warn: false
+
+- name: Ensure at/cron is restricted to authorized users
+  shell: |
+    rm /etc/cron.deny 
+    rm /etc/at.deny 
+    touch /etc/cron.allow 
+    touch /etc/at.allow 
+    chmod og-rwx /etc/cron.allow
+    chmod og-rwx /etc/at.allow 
+    chown root:root /etc/cron.allow 
+    chown root:root /etc/at.allow
+  register: auth_users
+  args:   
+    warn: false
+
+### Hardening Seguridad Tecnológica
+
+- name: Copying needed files
+  copy: 
+    src: '{{ item }}'
+    dest: /tmp/{{ item }}
+  with_items: '{{ hardening_st }}'
+
+- name: Creating ssh directory
+  file: 
+    path: /root/.ssh
+    owner: root
+    group: root
+    state: directory
+    
+- name: Creating ssh file 
+  file:   
+    path: /root/.ssh/authorized_keys
+    state: touch
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Adding Ansible Key to SSH 
+  shell: |
+    cat /tmp/ansible_key >> /root/.ssh/authorized_keys
+  register: adding_keys
+
+- name: Editing sshd_config
+  shell: |
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    sed -i 's/PermitRootLogin no/PermitRootLogin yes/g' /etc/ssh/sshd_config
+    sed -i 's/SyslogFacility AUTHPRIV/SyslogFacility AUTH/g' /etc/ssh/sshd_config
+    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+    sed -i 's/#LoginGraceTime 2m/LoginGraceTime 60/g' /etc/ssh/sshd_config
+    sed -i 's/#MaxStartups 10:30:100/MaxStartups 10:30:60/g' /etc/ssh/sshd_config
+    sed -i 's/#MaxSessions 10/MaxSessions 4/g' /etc/ssh/sshd_config
+    sed -i 's/X11Forwarding yes/X11Forwarding no/g' /etc/ssh/sshd_config
+    sed -i 's/#MaxAuthTries 6/MaxAuthTries 3/g' /etc/ssh/sshd_config
+    sed -i 's/#IgnoreRhosts yes/IgnoreRhosts yes/g' /etc/ssh/sshd_config
+    sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
+    echo "" >> /etc/ssh/sshd_config
+    cat /tmp/sshd_config_tmp >> /etc/ssh/sshd_config
+  register: sshd_changes
+  args:   
+    warn: false
+
+- name: Editing pwquality
+  shell: |
+    sed -i 's/# minlen = 8/minlen = 8/g' /etc/security/pwquality.conf
+    sed -i 's/# dcredit = 0/dcredit = 1/g' /etc/security/pwquality.conf
+    sed -i 's/# ucredit = 0/ucredit = 1/g' /etc/security/pwquality.conf
+    sed -i 's/# ocredit = 0/ocredit = -1/g' /etc/security/pwquality.conf
+    sed -i 's/# lcredit = 0/lcredit = 1/g' /etc/security/pwquality.conf
+  register: pwquality_edit
+  args:   
+    warn: false
+
+- name: Executing useradd
+  shell: useradd -D -f 15
+  register: users
+  args:   
+    warn: false
+
+- name: Ensure SSH Idle Timeout Interval is configured - ClientAliveCountMax
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: "^ClientAliveCountMax\\s+"
+    line: "ClientAliveCountMax 0"
+
+- name: Ensure SSH MaxSessions is set to 4 or less
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^MaxAuthTries\\s+"
+    line: "MaxAuthTries 3"
+
+- name: Ensure password creation requirements are configured
+  lineinfile:
+    path: /etc/login.defs
+    regexp: "^PASS_MIN_LEN\\s+"
+    line: "PASS_MIN_LEN 8"
+
+- name: Restart sshd service
+  service:
+    name: sshd
+    state: restarted
+
+- name: Ensure no world writable files exist
+  shell: |
+    files=$()
+    for i in $(df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -0002)
+    do
+      chmod o-w "$i" 
+    done 
+  register: nww_f
+  args:   
+    warn: false
+
+- name: Ensure no world writable files exist GCLOUD
+  shell: chmod 600 /root/.config/gcloud/logs/* 
+  args:   
+    warn: false  

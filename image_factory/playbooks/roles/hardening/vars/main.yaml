@@ -1,0 +1,75 @@
+sysctl_vars_0:
+  - fs.suid_dumpable
+  - net.ipv4.ip_forward
+  - net.ipv4.conf.all.send_redirects
+  - net.ipv4.conf.default.send_redirects
+  - net.ipv4.conf.all.accept_source_route
+  - net.ipv4.conf.default.accept_source_route
+  - net.ipv4.conf.all.accept_redirects
+  - net.ipv4.conf.default.accept_redirects
+  - net.ipv4.conf.all.accept_redirects
+  - net.ipv4.conf.default.accept_redirects
+  - net.ipv4.conf.all.secure_redirects
+  - net.ipv4.conf.default.secure_redirects
+  - net.ipv6.conf.all.accept_ra
+  - net.ipv6.conf.default.accept_ra
+  - net.ipv6.conf.all.accept_redirects
+  - net.ipv6.conf.default.accept_redirects 
+
+sysctl_vars_1:
+  - net.ipv4.conf.all.log_martians
+  - net.ipv4.conf.default.log_martians
+  - net.ipv4.icmp_echo_ignore_broadcasts
+  - net.ipv4.icmp_ignore_bogus_error_responses
+  - net.ipv4.conf.all.rp_filter
+  - net.ipv4.conf.default.rp_filter
+  - net.ipv4.tcp_syncookies
+
+banners_files: 
+  - /etc/motd
+  - /etc/issue
+  - /etc/issue.net
+
+cron_files: 
+  - /etc/cron.allow
+  - /etc/cron.deny
+  - /etc/at.allow
+  - /etc/at.deny
+  - /etc/crontab
+
+permissions_0000: 
+  - /etc/shadow 
+  - /etc/gshadow
+  - /etc/shadow-
+
+permissions_0400: 
+  - /etc/passwd-
+  - /etc/group-
+
+permissions_0600: 
+  - /etc/gshadow-
+
+permissions_0644: 
+  - /etc/passwd
+  - /etc/group
+  - /etc/sudoers
+
+scripts: 
+  - audit.sh
+  - banners.sh
+  - users_groups.sh
+  - modprobe.sh
+
+hardening_st:
+  - sshd_config_tmp
+  - ansible_key
+
+cis_vars: 
+
+  - install cramfs /bin/true
+  - install freevxfs /bin/true
+  - install jffs2 /bin/true
+  - install hfs /bin/true
+  - install hfsplus /bin/true
+  - install squashfs /bin/true
+  - install udf /bin/true

@@ -1,0 +1,48 @@
+extras: 
+  - compat-glibc-2.12-4.el7.centos.x86_64.rpm
+  - compat-glibc-headers-2.12-4.el7.centos.x86_64.rpm
+  - compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm
+
+directories_nfs: 
+  - /sas_work
+  - /codigos_productivos
+  - /produccion
+  - /sas_credit
+  - /sas_credit4
+  - /sas_im
+  - /Triad
+  - /sas_pro_seg
+  - /sas_staging
+  - /sas_users
+  - /sas_prevrie
+  - /sas_pro_cre
+  - /Score_Hit_Dilisa_2017
+  - /sas_insumos
+  - /sas_pro_inmo
+  - /monitoreo
+  - /sas_respaldo
+  - /sas_source
+  - /TEMPORAL
+  - /sas_credit_pres
+  - /sas_DataMart
+  - /TEMPORAL_2
+  - /DESCARGA_CAMPANAS
+  - /migracion
+  - /CRM_DataMart
+  - /CRM_Staging
+  - /CRM_ODS
+  - /CRM_OLAP
+  - /CRMTemporal
+  - /DevCRM_DataMart
+  - /DevCRM_Staging
+  - /DevCRM_ODS
+  - /DevCRM_OLAP
+  - /DevTEMPORAL
+  - /sas_workCred
+  - /storage
+  - /Datos
+  - /cascache
+
+directories_local: 
+  - /instalacion
+  - /depot

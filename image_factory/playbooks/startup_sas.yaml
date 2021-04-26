@@ -1,0 +1,7 @@
+- hosts: localhost
+  become: yes
+  connection: local
+  roles: 
+    - setup_so
+    - sas
+    - hardening

@@ -1,0 +1,8 @@
+Protocol 2
+LogLevel INFO
+StrictModes yes
+RSAAuthentication yes
+PermitEmptyPasswords no
+Banner /etc/ssh/sshd-banner
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+AllowUsers discover@172.22.201.189 discover@172.16.201.110 discover@172.17.201.191 *@172.18.200.4 root@172.17.201.127 root@172.17.201.62 root@172.16.201.62 root@172.17.202.117 root@172.17.202.118 root@172.17.202.119 root@172.17.211.117 root@172.16.202.170 root@172.17.202.171 root@172.17.211.115 root@172.17.211.116 root@172.17.202.189 *@35.235.241.*

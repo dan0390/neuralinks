@@ -1,0 +1,74 @@
+### Copying needed files
+
+- name: Copying needed files
+  copy: 
+    src: '{{ item }}'
+    dest: /tmp/{{ item }}
+  with_items: '{{ tmp_files }}'
+
+### Managing packages
+
+- name: Upgrading SO
+  yum: 
+    name: "*"
+    state: latest
+
+- name: Adding StackDriver Monitoring & Logging Repo
+  shell: |
+    curl -sSO https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh
+    sudo bash add-monitoring-agent-repo.sh
+    curl -sSO https://dl.google.com/cloudagents/add-logging-agent-repo.sh
+    sudo bash add-logging-agent-repo.sh
+  args: 
+    warn: false
+
+- name: Installing Packages
+  yum: 
+    name: 
+      - libnsl
+      - stackdriver-agent
+      - google-fluentd
+    state: latest
+
+- name: Installing NPAM agent 
+  shell: rpm -ivh /tmp/netiq-npam-agent-3.7.0-linux-3.0-x86_64.rpm
+  register: npam_agent 
+  args: 
+    warn: false
+
+### Enabling Agents
+
+- name: Enabling Stackdriver Monitoring Agent
+  service: 
+    name: stackdriver-agent
+    enabled: yes
+
+- name: Enabling Stackdriver Logging Agent
+  service: 
+    name: google-fluentd
+    enabled: yes
+
+### Setting Up Timezone
+
+- name: Set timezone to America/Mexico_City
+  timezone:
+    name: America/Mexico_City
+
+- name: Removing local time
+  file: 
+    path: /etc/localtime
+    state: absent
+
+- name: Creating symbolic link
+  file: 
+    src: /usr/share/zoneinfo/America/Mexico_City 
+    dest: /etc/localtime
+    state: link
+
+### Removing temporary files
+
+- name: Deleting Temporary files
+  file: 
+    path: /tmp/{{ item }}
+    state: absent
+  with_items: '{{ tmp_files }}'

@@ -1,0 +1,23 @@
+steps: 
+  - name: 'gcr.io/cloud-builders/git'
+    args: 
+    - clone
+    - https://source.developers.google.com/p/crp-dev-cloudsrv-test/r/github_servicios-liverpool-infraestructura_devops
+    - /home/packer/ansible
+    volumes: 
+    - name: 'repo'
+      path: '/home/packer/DevOps/ansible/image_factory'
+  
+  - name: 'gcr.io/crp-dev-cloudsrv-test/packer'
+    args: 
+    - build
+    - -force
+    - -var
+    - project_id=crp-dev-cloudsrv-test
+    - -var
+    - image_zone=us-east4-a
+    - std_rhel_8.json
+    volumes: 
+    - name: 'repo'
+      path: '/home/packer/DevOps/ansible/image_factory'
+logsBucket: 'crp-dev-cloudsrv-test-bkt04'
