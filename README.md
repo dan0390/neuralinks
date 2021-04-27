@@ -8,6 +8,6 @@ This is an example code of an Image Factory to create harenized and updated Red 
 
 - This is a work in progress, so the hardening was writen in Shell Script, but it is being migrated to Ansible. 
 - The harening code is being also translated to English. 
-- This example code creates two Images, one of them is just a standard Red Hat 8 and the other one is profiled with packages and specifications for SAS solution. 
+- This example code creates two Images. One of them is just a standard Red Hat 8, and the other one is profiled with packages and specifications for SAS solution. 
 
 
