@@ -1,4 +1,4 @@
-### Example Code for an Image Factory in GCP - Red Hat 8
+### Example Code for an Image Factory in GCP - Red Hat v.8.X
 
 ### Summary
 
